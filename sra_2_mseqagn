@@ -1,0 +1,24 @@
+# This shows the steps to download SRA data and perform multiple sequence alignment. 1/7/25-SC
+# create a txt file with sra data (sra.txt)     n
+# downn;pad the data set
+while read -r sra_id; do
+  fasterq-dump --split-files $sra_id
+done < sra.txt
+# merge the paired end reads using PEAR- Illumina paired end read merger. This required the files to be .gz
+gzip SRR26184034_1.fastq
+gzip SRR26184034_2.fastq
+pear -f SRR26184034_1.fastq.gz -r SRR26184034_2.fastq.gz -o SRR26184034_merged
+# convert fastq to fasta
+seqkit fq2fa SRR26184034.assembled.fastq > SRR26184034.assembled.fasta
+seqkit fq2fa SRR28703292.assembled.fastq > SRR28703292.assembled.fasta
+seqkit fq2fa SRR31508287.assembled.fastq > SRR31508287.assembled.fasta
+seqkit fq2fa SRR31795590.assembled.fastq > SRR31795590.assembled.fasta
+seqkit fq2fa SRR31795594.assembled.fastq > SRR31795594.assembled.fasta
+
+# Multiple Sequence Alignment Using ClustalW
+clustalw2 -INFILE=SRR26184034_1.fasta -INFILE=SRR26184034_2.fasta \
+          -INFILE=SRR28703292_1.fasta -INFILE=SRR28703292_2.fasta \
+          -INFILE=SRR31508287_1.fasta -INFILE=SRR31508287_2.fasta \
+          -INFILE=SRR31795590_1.fasta -INFILE=SRR31795590_2.fasta \
+          -INFILE=SRR31795594_1.fasta -INFILE=SRR31795594_2.fasta \
+          -OUTFILE=aligned_sequences.fasta
